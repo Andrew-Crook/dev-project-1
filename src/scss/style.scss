@@ -1,0 +1,59 @@
+$time: 5;
+$val1: 100000;
+
+$colors: (#00ffff, #faebd7, #0000ff, #6a52db, #00008b, #008b8b, #006400, #00ced1, #00bfff, #008000, #00ff00, #0000cd, #00fa9a, #000080, #00ff7f, #008080, #191970, #1e90ff, #20b2aa, #228b22, #2e8b57, #2f4f4f, #32cd32, #3cb371, #40e0d0, #4169e1, #4682b4, #483d8b, #48d1cc, #4b0082, #556b2f, #5f9ea0, #6495ed, #66cdaa, #6a5acd, #6b8e23, #7b68ee, #7cfc00, #7fffd4, #800000, #808000, #800080, #87cefa, #8a2be2, #8b008b, #8b0000, #8b4513, #8fbc8f, #9370db, #9400d3, #98fb98, #9932cc, #9acd32, #a0522d, #a52a2a, #a9a9a9, #adff2f, #add8e6, #b22222, #b8860b, #ba55d3, #bc8f8f, #bdb76b, #c0c0c0, #c71585, #cd5c5c, #cd853f, #d2691e, #d2b48c, #d8bfd8, #daa520, #da70d6, #db7093, #dc143c, #dda0dd, #deb887, #e9967a, #eee8aa, #ee82ee, #f0e68c, #f08080, #f4a460, #fa8072, #ffe4c4, #ff7f50, #ff8c00, #ff1493, #ff00ff, #ffd700, #ff69b4, #fffacd, #ffb6c1, #ffa07a, #ff00ff, #ffa500, #ff4500, #ffc0cb, #ff0000, #ff6347, #ffff00, #663399);
+
+[class*="box"]{
+	position: relative;
+	width:calc(100% / 10);
+	height:calc(100vh / 10);
+	float: left;
+	box-shadow: 0 0 .5em 0 rgba(0,0,0,.6);
+	cursor: pointer;
+	@for $i from 1 to 101 {
+		&:nth-of-type(#{$i}):before{
+			animation-delay: -#{$time / $val1 *$i}s;
+		}
+	}
+	&:before{
+		content: '';
+		position: absolute;
+		display: block;
+		width: 100%;
+		height: 100%;
+		z-index: -1;
+		animation-name: chameleon;
+		animation-iteration-count: infinite;
+		animation-play-state: paused !important;
+		animation-duration: 0.005s;
+	}
+	&:hover:before{
+		animation-play-state: running !important;
+		animation-duration: 50s;
+	}
+}
+
+@mixin keyframes($name) {
+	@-webkit-keyframes #{$name} {
+		@content; 
+	}
+	@-moz-keyframes #{$name} {
+		@content;
+	}
+	@-ms-keyframes #{$name} {
+		@content;
+	}
+	@-o-keyframes #{$name} {
+		@content;
+	}
+	@keyframes #{$name} {
+		@content;
+	}
+}
+
+@include keyframes(chameleon){
+	@for $i from 1 to length($colors){
+		$bg: nth($colors, $i);
+		#{$i}%{background:$bg;}
+	}
+}
