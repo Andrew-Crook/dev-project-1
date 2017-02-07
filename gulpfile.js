@@ -7,9 +7,9 @@ var gulp = require('gulp'),
 	sass = require('gulp-sass'),
 	jade = require('gulp-jade'),
 	sourcemaps = require('gulp-sourcemaps'),
-	rigger = require('gulp-rigger'),
 	cssmin = require('gulp-minify-css'),
 	imagemin = require('gulp-imagemin'),
+	data = require("gulp-data"),
 	pngquant = require('imagemin-pngquant'),
 	rimraf = require('rimraf'),
 	browserSync = require("browser-sync"),
@@ -24,16 +24,21 @@ var path = {
 		fonts: 'build/fonts/'
 	},
 	src: {
-		html: 'dev/jade/2_pages/*.jade',
+		jade: 'dev/jade/2_pages/*.jade',
 		js: 'dev/js/script.js',
-		style: 'dev/scss/*.scss',
+		sass: 'dev/scss/**/*.scss',
 		img: 'dev/img/**/*.*',
 		fonts: 'dev/fonts/**/*.*'
 	},
+	ignore: {
+		jade: '!dev/jade/**/_*.jade',
+		js: '!dev/js/**/_*.js',
+		sass: '!dev/scss/**/_*.scss',
+	},
 	watch: {
-		html: 'dev/**/*.jade',
+		jade: 'dev/**/*.jade',
 		js: 'dev/js/**/*.js',
-		style: 'dev/scss/**/*.scss',
+		sass: 'dev/scss/**/*.scss',
 		img: 'dev/img/**/*.*',
 		fonts: 'dev/fonts/**/*.*'
 	},
@@ -42,7 +47,7 @@ var path = {
 
 var config = {
 	server: {
-		baseDir: "./build"
+		baseDir: path.clean
 	},
 	tunnel: true,
 	host: 'localhost',
@@ -50,34 +55,37 @@ var config = {
 	logPrefix: "Andrew"
 };
 
-gulp.task('webserver', function () {
+gulp.task('webserver', function (){
 	browserSync(config);
 });
 
-gulp.task('clean', function (cb) {
+gulp.task('clean', function (cb){
 	rimraf(path.clean, cb);
 });
 
-gulp.task('html:build', function () {
-	gulp.src(path.src.html) 
-		.pipe(jade())
-		.pipe(rigger())
+gulp.task('jade:build', function (){
+	gulp.src([path.src.jade, path.ignore.jade])
+		.pipe(data(function (file){
+			return {
+				relativePath: file.history[0].replace(file.base,'')
+			};
+		}))
+		.pipe(jade().on('error', console.log))
 		.pipe(gulp.dest(path.build.html))
 		.pipe(reload({stream: true}));
 });
 
 gulp.task('js:build', function () {
-	gulp.src(path.src.js) 
-		.pipe(rigger()) 
-		.pipe(sourcemaps.init()) 
-		.pipe(uglify()) 
-		.pipe(sourcemaps.write()) 
+	gulp.src([path.src.js, path.ignore.js])
+		.pipe(sourcemaps.init())
+		.pipe(uglify())
+		.pipe(sourcemaps.write())
 		.pipe(gulp.dest(path.build.js))
 		.pipe(reload({stream: true}));
 });
 
-gulp.task('style:build', function () {
-	gulp.src(path.src.style) 
+gulp.task('sass:build', function (){
+	gulp.src([path.src.sass, path.ignore.sass])
 		.pipe(sourcemaps.init())
 		.pipe(sass({
 			sourceMap: true,
@@ -90,8 +98,8 @@ gulp.task('style:build', function () {
 		.pipe(reload({stream: true}));
 });
 
-gulp.task('image:build', function () {
-	gulp.src(path.src.img) 
+gulp.task('image:build', function (){
+	gulp.src(path.src.img)
 		.pipe(imagemin({
 			progressive: true,
 			svgoPlugins: [{removeViewBox: false}],
@@ -102,37 +110,36 @@ gulp.task('image:build', function () {
 		.pipe(reload({stream: true}));
 });
 
-gulp.task('fonts:build', function() {
+gulp.task('fonts:build', function(){
 	gulp.src(path.src.fonts)
 		.pipe(gulp.dest(path.build.fonts))
+		.pipe(reload({stream: true}));
 });
 
-gulp.task('build', [
-	'html:build',
+gulp.task('build',[
+	'jade:build',
 	'js:build',
-	'style:build',
+	'sass:build',
 	'fonts:build',
 	'image:build'
 ]);
 
-
 gulp.task('watch', function(){
-	watch([path.watch.html], function(event, cb) {
-		gulp.start('html:build');
+	watch([path.watch.jade], function(event, cb){
+		gulp.start('jade:build');
 	});
-	watch([path.watch.style], function(event, cb) {
-		gulp.start('style:build');
+	watch([path.watch.sass], function(event, cb){
+		gulp.start('sass:build');
 	});
-	watch([path.watch.js], function(event, cb) {
+	watch([path.watch.js], function(event, cb){
 		gulp.start('js:build');
 	});
-	watch([path.watch.img], function(event, cb) {
+	watch([path.watch.img], function(event, cb){
 		gulp.start('image:build');
 	});
-	watch([path.watch.fonts], function(event, cb) {
+	watch([path.watch.fonts], function(event, cb){
 		gulp.start('fonts:build');
 	});
 });
 
-
-gulp.task('default', ['build', 'webserver', 'watch']);
+gulp.task('default', ['build','webserver','watch']);
