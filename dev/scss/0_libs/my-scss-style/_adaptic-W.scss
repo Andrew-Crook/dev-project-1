@@ -1,0 +1,29 @@
+﻿// http://codepen.io/jakob-e/pen/Ccahj
+
+$base-width:1980 !default;
+$min-width:320  !default;
+$max-width:10500 !default;
+
+$ResponsiveFonts-init:false !default;
+@mixin ResponsiveFonts($args...){
+	@if($ResponsiveFonts-init==false){
+		$ResponsiveFonts-init:true;
+		$s:floor($min-width*100/$base-width);
+		$e:ceil($max-width*100/$base-width);
+		$r:$base-width/100;
+		$l:();
+		@for $i from 1 through length($args){
+			$l:append($l,unquote(nth($args,$i)),comma);
+		}
+		$l:if(length($l)==0,unquote('.responsive-fonts'),$l);
+		@for $i from $s through $e {
+			$p:percentage($i/$base-width)*$r;
+			$t:if($i==$s,max,min);
+			$w:round(if($i==$s,($r*$i)+($r - 1)*1px,$r*$i*1px));
+			@media (#{$t}-width:$w){
+				#{$l}{ font-size:$p;}
+			}
+		}
+	}
+}
+@include ResponsiveFonts('html');

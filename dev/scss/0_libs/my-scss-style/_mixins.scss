@@ -1,0 +1,42 @@
+$grid:12;
+$arr:(mobile:m,tablet:t,desktop:d);
+$trbl:(top:t,right:r,bottom:b,left:l);
+
+// colors
+$main:#131C2B;
+$second:#FF0265;
+$shadow:#0E131E;
+$head:#273755;
+$text:#505B73;
+
+// var and mixin
+$_current_breakpoint_key:'';
+@mixin media($breakpointkeys...){
+	@each $key, $value in $breakpointkeys{
+		$_current_breakpoint_key:$key !global;
+		@media #{map-get($breakpoints,$key)}{@content;}
+		$_current_breakpoint_key:'' !global;
+	}
+};
+@function media-context(){
+	@return $_current_breakpoint_key;
+}
+@mixin extends(){
+	@content; 
+	@each $key, $value in $breakpoints{
+		@include media($key){@content;}
+	}
+}
+@mixin new-extend($name){
+	%#{media-context() + $name}{@content;}
+}
+@mixin extend($name){
+	&{
+		@extend %#{media-context() + $name};
+	}
+}
+$breakpoints:(
+	'mobile' : '(max-width:480px)',
+	'tablet' : '(min-width:481px) and (max-width:960px)',
+	'desktop': '(min-width:961px)'
+);

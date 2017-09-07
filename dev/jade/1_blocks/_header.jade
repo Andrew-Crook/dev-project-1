@@ -1,0 +1,27 @@
+header.col-12d
+	nav.col-12d
+		.col-10d-center
+			.logo.fl-left-d
+				a New Wave
+			ul
+				each text, i in texts
+					if name == url[i] + ".jade"
+						li.active
+							a(href=url[i] + ".html") #{texts[i]}
+					else
+						li
+							a(href=url[i] + ".html") #{texts[i]}
+	svg(xmlns="http://www.w3.org/2000/svg")
+		defs
+			filter(id="shadow",x="0",y="0",width="200%",height="200%")
+				feOffset(result="offOut",in="SourceGraphic",dx="3",dy="3")
+				feGaussianBlur(result="blurOut",in="offOut",stdDeviation="3")
+				feBlend(in="SourceGraphic",in2="blurOut",mode="normal")
+		- for(var i = 0; i < 3; i++)
+			path(id="svg_#{i+1}",d=path[i])
+	.content
+		h1 Lorem ipsum dolor sit amet, consectetur.
+		a.button Explore Now!
+
+
+

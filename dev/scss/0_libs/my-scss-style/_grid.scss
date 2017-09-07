@@ -1,0 +1,86 @@
+@import "mixins";
+
+*,:after,:before{
+margin:0;
+padding:0;
+}
+
+.container{
+	width:100%;
+	height:inherit;
+	margin-left:auto;
+	margin-right:auto;
+	position:relative;
+}
+
+%standart{
+	display: block;
+	float:left;
+	position: relative;
+	min-height: 1px;
+}
+%corn{
+	padding-left:1.3rem;
+	padding-right:1.3rem;
+}
+%text{
+	padding:1.3rem;
+}
+
+
+.row{
+	@extend %standart;
+	&:after{
+		clear:both;
+	}
+	&:before,&:after{
+		content:'';
+		display:table;
+	}
+}
+
+[class*="col"]{
+	@extend %standart;
+	// @extend %corn;
+	&[class*="-h_center"]{
+		left:50%;
+		transform: translateX(-50%);
+	}
+	&[class*="-v_center"]{
+		top:50%;
+		transform: translateY(-50%);
+	}
+	&[class*="-center"]{
+		top:50%;left:50%;
+		transform: translateX(-50%) translateY(-50%);
+	}
+	& img{
+		width: 100%;
+		height: auto;
+		padding-left:0;
+		padding-right:0;
+		float: left;
+		& + p{
+			float: left;
+			@extend %text;
+		}
+	}
+}
+
+@each $media, $class in $arr{
+	@include media($media){
+		@for $i from 0 through $grid{
+			$val:100% / $grid * $i;
+			[class*="col-"][class*="-#{$i}#{$class}"]{width:$val;}
+			[class*="col-offset-"][class*="-#{$i}#{$class}"]{width:$val;}
+			// @for $j from 0 through 9{
+			// 	@if $i != $grid and $j != 0{
+			// 		[class*="col-"][class*="-#{$i}_#{$j}#{$class}"]{width:100% / $grid / 10 * $j + $val;}
+			// 	}
+			// } 
+		}
+		[class*="fl-left"][class*="-#{$class}"]{float:left;}
+		[class*="fl-right"][class*="-#{$class}"]{float:right;}
+		[class*="fl-clear"][class*="-#{$class}"]{clear:both;}
+	}
+}
